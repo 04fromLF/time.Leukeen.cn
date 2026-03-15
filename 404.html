@@ -1,67 +1,87 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 适配移动端：设置视口宽度，禁用缩放（可选，保留用户缩放能力） -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 适配移动端：设置视口宽度，保留用户缩放能力（更友好） -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <title>页面不存在 - Leukeen</title>
     <style>
+        /* 全局盒模型统一 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         /* ----- 原有画风（完全保留）----- */
         body {
-            font-family: system-ui, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
             text-align: center;
             padding: 4rem 1rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
+
         h1 {
             font-size: 3rem;
-            margin: 0;
+            margin: 0 auto;
         }
+
+        p {
+            margin: 1.5rem auto;
+            font-size: 1.1rem;
+            color: #666;
+        }
+
         .error-id {
-            font-family: monospace;
+            font-family: monospace, Consolas, 'Courier New', monospace;
             background: #f4f4f4;
             padding: 0.5rem 1rem;
             border-radius: 4px;
             display: inline-block;
-            margin-top: 2rem;
+            margin-top: 1rem;
+            color: #333;
         }
 
         /* ----- 响应式适配：画风不变，只为不同屏幕优化尺寸与可读性 ----- */
-        /* 限制标题和段落的最大宽度，避免大屏幕下行过长，提升阅读舒适度 */
+        /* 限制标题和段落的最大宽度，避免大屏幕下行过长 */
         h1, p {
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
         }
 
-        /* 增强错误ID容器在小屏幕的适应性：防止溢出，保留内边距比例 */
+        /* 增强错误ID容器在小屏幕的适应性 */
         .error-id {
-            max-width: 100%;           /* 确保不超过父容器宽度 */
-            box-sizing: border-box;     /* 内边距计入宽度，避免撑破 */
-            word-break: break-word;     /* 极端小屏幕下允许换行（但十六进制几乎不会触发） */
+            max-width: 100%;
+            word-break: break-word;
         }
 
         /* 中屏：平板或较小笔记本 */
         @media (max-width: 640px) {
             body {
-                padding: 3rem 1rem;     /* 适当减小上下留白 */
+                padding: 3rem 1rem;
             }
             h1 {
-                font-size: 2.7rem;      /* 略降，但依旧醒目 */
+                font-size: 2.7rem;
             }
         }
 
         /* 小屏：大屏手机 */
         @media (max-width: 480px) {
             body {
-                padding: 2rem 0.8rem;   /* 进一步压缩边距 */
+                padding: 2rem 0.8rem;
             }
             h1 {
                 font-size: 2.2rem;
             }
             .error-id {
-                font-size: 0.85rem;     /* 错误代码字体稍减，避免溢出 */
-                padding: 0.4rem 0.8rem;  /* 同步缩小内边距 */
+                font-size: 0.85rem;
+                padding: 0.4rem 0.8rem;
+            }
+            p {
+                font-size: 1rem;
             }
         }
 
@@ -76,24 +96,14 @@
             }
         }
 
-        /* 保持原有配色、圆角、字族不变 —— 以上仅调整尺寸与边距 */
-
-        /* 版权 */
+        /* 版权信息 */
         .copyright {
             font-size: 0.7rem;
-            padding: 1rem 0.5rem;
+            padding: 2rem 0.5rem 1rem;
+            color: #999;
+            margin-top: auto;
         }
     </style>
-    <script>
-        // 获取当前 URL 路径（去掉域名和参数）
-        const path = window.location.pathname;
-        // 规则：如果路径没有 .html 后缀，且不是根目录，自动拼接 .html 并重定向
-        if (!path.endsWith('.html') && path !== '/') {
-            const newPath = path + '.html';
-            // 301 永久重定向（搜索引擎友好）
-            window.location.replace(newPath);
-        }
-    </script>
 </head>
 <body>
     <h1>404</h1>
@@ -102,12 +112,39 @@
         错误代码: <span id="errId"></span>
     </div>
     <footer class="copyright">
-        Copyright © 2026 Leukeen Inc. 保留所有权利。 <span>|</span> 怀ICP备13608号
+        Copyright © 2025 Leukeen Inc. 保留所有权利。 | 冀ICP备13608号-1
     </footer>
+
     <script>
-        // 生成一个随机的8位十六进制字符串 (完全保留原有逻辑)
-        const randomId = Math.random().toString(16).substring(2, 10).toUpperCase();
-        document.getElementById('errId').textContent = 'ERR_' + randomId;
+        // 1. URL 重定向逻辑优化：修复边界场景
+        (function() {
+            const path = window.location.pathname;
+            // 排除根目录、已带 .html 后缀、以 / 结尾的路径
+            const isRoot = path === '/';
+            const hasHtmlExt = path.endsWith('.html');
+            const endsWithSlash = path.endsWith('/') && path !== '/';
+            
+            if (!isRoot && !hasHtmlExt && !endsWithSlash) {
+                const newPath = path + '.html';
+                // 301 永久重定向（搜索引擎友好）
+                window.location.replace(newPath);
+            }
+        })();
+
+        // 2. 生成8位十六进制随机ID（增强鲁棒性）
+        (function() {
+            function generateRandomId() {
+                let randomId = '';
+                // 确保生成足够长度的随机字符串
+                while (randomId.length < 8) {
+                    randomId += Math.random().toString(16).substr(2);
+                }
+                // 截取前8位并转大写
+                return randomId.substr(0, 8).toUpperCase();
+            }
+            const errId = 'ERR_' + generateRandomId();
+            document.getElementById('errId').textContent = errId;
+        })();
     </script>
 </body>
 </html>
