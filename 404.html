@@ -84,6 +84,16 @@
             padding: 1rem 0.5rem;
         }
     </style>
+    <script>
+        // 获取当前 URL 路径（去掉域名和参数）
+        const path = window.location.pathname;
+        // 规则：如果路径没有 .html 后缀，且不是根目录，自动拼接 .html 并重定向
+        if (!path.endsWith('.html') && path !== '/') {
+            const newPath = path + '.html';
+            // 301 永久重定向（搜索引擎友好）
+            window.location.replace(newPath);
+        }
+    </script>
 </head>
 <body>
     <h1>404</h1>
